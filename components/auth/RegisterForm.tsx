@@ -41,29 +41,56 @@ export function RegisterForm() {
     resolver: zodResolver(registerSchema),
   });
 
-  // Quick test account creation
+  // Quick test account creation - uses anonymous auth to bypass email
   const createTestAccount = async () => {
     setIsLoading(true);
     setError('');
 
-    const testEmail = `test${Date.now()}@studyspark.local`;
-    const testPassword = 'test123';
-
     try {
       const supabase = createClient();
       
+      // Try anonymous sign-in first (no email needed!)
+      const { data: anonData, error: anonError } = await supabase.auth.signInAnonymously();
+      
+      if (!anonError && anonData.user) {
+        // Anonymous auth worked - redirect to dashboard
+        router.push('/dashboard');
+        router.refresh();
+        return;
+      }
+
+      // Fallback to email-based test account if anonymous fails
+      const testEmail = `test_${Date.now()}@studyspark.local`;
+      const testPassword = 'test123456';
+
       const { data: authData, error: signUpError } = await supabase.auth.signUp({
         email: testEmail,
         password: testPassword,
         options: {
           data: {
-            username: `test_user_${Date.now()}`,
+            username: `test_${Date.now()}`,
           },
+          emailRedirectTo: undefined,
         },
       });
 
-      if (signUpError) throw signUpError;
+      if (signUpError) {
+        // If we get rate limit error, show helpful message
+        if (signUpError.message?.includes('rate') || signUpError.message?.includes('limit')) {
+          setError(
+            '⚠️ Email rate limit reached. Please:\n' +
+            '1. Go to Supabase Dashboard\n' +
+            '2. Authentication → Providers → Email\n' +
+            '3. Disable "Confirm email"\n' +
+            '4. Try again, or just login if you already have an account'
+          );
+        } else {
+          throw signUpError;
+        }
+        return;
+      }
 
+      // Try to sign in immediately
       if (authData.user) {
         const { error: signInError } = await supabase.auth.signInWithPassword({
           email: testEmail,
@@ -73,6 +100,8 @@ export function RegisterForm() {
         if (!signInError) {
           router.push('/dashboard');
           router.refresh();
+        } else {
+          setError('Account created but needs email confirmation. Please check Supabase settings.');
         }
       }
     } catch (err: any) {
