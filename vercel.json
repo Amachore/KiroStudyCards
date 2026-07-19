@@ -4,13 +4,7 @@
   "installCommand": "npm install",
   "framework": "nextjs",
   "env": {
-    "NEXT_PUBLIC_SUPABASE_URL": {
-      "description": "Your Supabase project URL (get from: https://app.supabase.com/project/_/settings/api)",
-      "required": true
-    },
-    "NEXT_PUBLIC_SUPABASE_ANON_KEY": {
-      "description": "Your Supabase anonymous/public key (get from: https://app.supabase.com/project/_/settings/api)",
-      "required": true
-    }
+    "NEXT_PUBLIC_SUPABASE_URL": "https://jowldnmkorbngbixlwcc.supabase.co",
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impvd2xkbm1rb3JibmdiaXhsd2NjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQyODE3MDMsImV4cCI6MjA5OTg1NzcwM30.fD7noslw6xxH8jTFp2FzzMJ_E2kPd7djN9GfatWDy9A"
   }
 }
