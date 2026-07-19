@@ -3,9 +3,9 @@ import './globals.css';
 import { Providers } from './providers';
 
 export const metadata: Metadata = {
-  title: 'FlashCard - Study Smarter',
-  description: 'A modern flash card study platform for students and lifelong learners',
-  keywords: ['flashcards', 'study', 'learning', 'education', 'spaced repetition'],
+  title: 'StudySpark - Master Any Subject with Smart Flashcards',
+  description: 'Study smarter with spaced repetition and beautiful flash cards. Transform how you learn. By Vaughn.',
+  keywords: ['flashcards', 'study', 'learning', 'education', 'spaced repetition', 'StudySpark'],
 };
 
 export default function RootLayout({

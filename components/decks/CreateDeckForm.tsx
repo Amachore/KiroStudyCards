@@ -59,7 +59,7 @@ export function CreateDeckForm() {
 
       if (!user) throw new Error('Not authenticated');
 
-      const { data: deck, error: createError } = await supabase
+      const { data: deckData, error: createError } = await supabase
         .from('decks')
         .insert({
           user_id: user.id,
@@ -67,12 +67,13 @@ export function CreateDeckForm() {
           description: data.description || null,
           privacy: data.privacy,
           tags: selectedTags,
-        })
+        } as any)
         .select()
         .single();
 
       if (createError) throw createError;
 
+      const deck = deckData as any;
       router.push(`/decks/${deck.id}/edit`);
       router.refresh();
     } catch (err: any) {

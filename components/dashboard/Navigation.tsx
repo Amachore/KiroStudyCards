@@ -42,9 +42,14 @@ export function Navigation() {
               >
                 <BookOpen className="h-8 w-8 text-primary-600" />
               </motion.div>
-              <span className="text-xl font-bold text-gray-900 transition-colors group-hover:text-primary-600">
-                FlashCard
-              </span>
+              <div className="flex flex-col">
+                <span className="text-xl font-bold tracking-tight text-gray-900 transition-colors group-hover:text-primary-600">
+                  StudySpark
+                </span>
+                <span className="text-xs font-medium italic text-gray-600">
+                  by Vaughn
+                </span>
+              </div>
             </Link>
 
             {/* Navigation Links */}

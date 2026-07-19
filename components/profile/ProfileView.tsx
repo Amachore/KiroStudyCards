@@ -23,11 +23,12 @@ export function ProfileView({ profile, userId }: ProfileViewProps) {
         .eq('user_id', userId);
 
       // Get total sessions
-      const { data: sessions } = await supabase
+      const { data: sessionsData } = await supabase
         .from('study_sessions')
         .select('*')
         .eq('user_id', userId);
 
+      const sessions = sessionsData as any[];
       const totalSessions = sessions?.length || 0;
       const totalCardsStudied = sessions?.reduce((sum, s) => sum + s.cards_reviewed, 0) || 0;
       const totalCorrect = sessions?.reduce((sum, s) => sum + s.correct_count, 0) || 0;

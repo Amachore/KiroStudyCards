@@ -14,16 +14,18 @@ export default async function EditDeckPage({ params }: { params: { id: string } 
     redirect('/login');
   }
 
-  const { data: deck } = await supabase
+  const { data: deckData } = await supabase
     .from('decks')
     .select('*, cards(*)')
     .eq('id', params.id)
     .eq('user_id', user.id)
     .single();
 
-  if (!deck) {
+  if (!deckData) {
     redirect('/decks');
   }
+
+  const deck = deckData as any;
 
   // Sort cards by order_index
   const sortedCards = (deck.cards || []).sort(

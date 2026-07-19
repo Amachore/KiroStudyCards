@@ -18,21 +18,23 @@ export function DashboardStats({ userId }: { userId: string }) {
         .eq('user_id', userId);
 
       // Get total cards studied
-      const { data: sessions } = await supabase
+      const { data: sessionsData } = await supabase
         .from('study_sessions')
         .select('cards_reviewed')
         .eq('user_id', userId);
 
+      const sessions = sessionsData as any[];
       const totalCardsStudied = sessions?.reduce((sum, s) => sum + s.cards_reviewed, 0) || 0;
 
       // Get recent sessions for streak
-      const { data: recentSessions } = await supabase
+      const { data: recentSessionsData } = await supabase
         .from('study_sessions')
         .select('created_at')
         .eq('user_id', userId)
         .order('created_at', { ascending: false })
         .limit(30);
 
+      const recentSessions = recentSessionsData as any[];
       const streak = calculateStreak(recentSessions || []);
 
       // Calculate accuracy

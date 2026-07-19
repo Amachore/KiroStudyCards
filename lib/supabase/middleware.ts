@@ -11,22 +11,38 @@ export async function middleware(req: NextRequest) {
     data: { session },
   } = await supabase.auth.getSession();
 
-  // Protect routes that require authentication
-  const protectedRoutes = ['/dashboard', '/decks', '/study', '/profile'];
-  const isProtectedRoute = protectedRoutes.some((route) =>
-    req.nextUrl.pathname.startsWith(route)
-  );
+  // Only these routes require strict authentication (write/modify actions)
+  const strictAuthRoutes = [
+    '/dashboard',
+    '/decks/new',
+    '/decks/[id]/edit',
+    '/profile',
+  ];
+  
+  // Check if current path requires strict auth
+  const requiresStrictAuth = strictAuthRoutes.some((route) => {
+    if (route.includes('[id]')) {
+      // Handle dynamic routes like /decks/[id]/edit
+      const pattern = route.replace('[id]', '[^/]+');
+      return new RegExp(`^${pattern}`).test(req.nextUrl.pathname);
+    }
+    return req.nextUrl.pathname.startsWith(route);
+  });
 
-  if (isProtectedRoute && !session) {
-    return NextResponse.redirect(new URL('/login', req.url));
+  // Redirect to login only for strict auth routes
+  if (requiresStrictAuth && !session) {
+    const loginUrl = new URL('/login', req.url);
+    loginUrl.searchParams.set('redirect', req.nextUrl.pathname);
+    return NextResponse.redirect(loginUrl);
   }
 
-  // Redirect authenticated users away from auth pages
+  // Gently redirect authenticated users away from auth pages
   const authRoutes = ['/login', '/register'];
   const isAuthRoute = authRoutes.some((route) => req.nextUrl.pathname === route);
 
   if (isAuthRoute && session) {
-    return NextResponse.redirect(new URL('/dashboard', req.url));
+    const redirect = req.nextUrl.searchParams.get('redirect');
+    return NextResponse.redirect(new URL(redirect || '/dashboard', req.url));
   }
 
   return res;

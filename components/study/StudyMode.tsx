@@ -10,10 +10,11 @@ import type { DeckWithCards, Card, StudySessionSummary } from '@/types';
 
 interface StudyModeProps {
   deck: DeckWithCards;
-  userId: string;
+  userId: string | null;
+  isGuest?: boolean;
 }
 
-export function StudyMode({ deck, userId }: StudyModeProps) {
+export function StudyMode({ deck, userId, isGuest = false }: StudyModeProps) {
   const router = useRouter();
   const [cards, setCards] = useState<Card[]>(deck.cards);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -112,15 +113,17 @@ export function StudyMode({ deck, userId }: StudyModeProps) {
     const duration = Math.floor((Date.now() - startTime) / 1000);
     const accuracy = correctCards.size / reviewedCards.size;
 
-    // Save study session
-    const supabase = createClient();
-    await supabase.from('study_sessions').insert({
-      user_id: userId,
-      deck_id: deck.id,
-      cards_reviewed: reviewedCards.size,
-      correct_count: correctCards.size,
-      duration_seconds: duration,
-    });
+    // Save study session (only for authenticated users)
+    if (!isGuest && userId) {
+      const supabase = createClient();
+      await supabase.from('study_sessions').insert({
+        user_id: userId,
+        deck_id: deck.id,
+        cards_reviewed: reviewedCards.size,
+        correct_count: correctCards.size,
+        duration_seconds: duration,
+      } as any);
+    }
 
     setShowSummary(true);
   };

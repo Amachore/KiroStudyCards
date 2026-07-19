@@ -73,11 +73,12 @@ export function DeckEditor({ deck }: { deck: DeckWithCards }) {
 
       // Delete cards that are no longer in the list
       const currentCardIds = existingCards.map((c) => c.id);
-      const { data: allCards } = await supabase
+      const { data: allCardsData } = await supabase
         .from('cards')
         .select('id')
         .eq('deck_id', deck.id);
 
+      const allCards = allCardsData as any[];
       const cardsToDelete =
         allCards?.filter((c) => !currentCardIds.includes(c.id)).map((c) => c.id) || [];
 
@@ -98,7 +99,7 @@ export function DeckEditor({ deck }: { deck: DeckWithCards }) {
               back_image_url: c.back_image_url,
               difficulty: c.difficulty,
               order_index: existingCards.length + index,
-            }))
+            })) as any
           )
           .select();
 
@@ -116,7 +117,7 @@ export function DeckEditor({ deck }: { deck: DeckWithCards }) {
       if (existingCards.length > 0) {
         await Promise.all(
           existingCards.map((card, index) =>
-            supabase
+            (supabase
               .from('cards')
               .update({
                 front: card.front,
@@ -126,7 +127,7 @@ export function DeckEditor({ deck }: { deck: DeckWithCards }) {
                 difficulty: card.difficulty,
                 order_index: index,
               })
-              .eq('id', card.id)
+              .eq('id', card.id) as any)
           )
         );
       }

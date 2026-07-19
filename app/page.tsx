@@ -13,9 +13,19 @@ export default function HomePage() {
           <div className="flex h-20 items-center justify-between">
             <div className="flex items-center gap-2">
               <BookOpen className="h-8 w-8 text-white" />
-              <span className="text-2xl font-bold text-white">FlashCard</span>
+              <div className="flex flex-col">
+                <span className="text-2xl font-bold tracking-tight text-white">
+                  StudySpark
+                </span>
+                <span className="text-xs font-medium italic text-white/70">
+                  by Vaughn
+                </span>
+              </div>
             </div>
             <div className="flex items-center gap-4">
+              <Link href="/browse" className="text-white/90 transition-colors hover:text-white">
+                Browse Decks
+              </Link>
               <Link href="/login" className="text-white/90 transition-colors hover:text-white">
                 Log In
               </Link>
@@ -105,7 +115,7 @@ export default function HomePage() {
             <div className="text-2xl font-bold text-gray-700">MIT</div>
             <div className="text-2xl font-bold text-gray-700">Stanford</div>
             <div className="text-2xl font-bold text-gray-700">Harvard</div>
-            <div className="text-2xl font-bold text-gray-700">Berkeley</div>
+            <div className="text-2xl font-bold text-gray-700">Southville</div>
             <div className="text-2xl font-bold text-gray-700">Oxford</div>
             <div className="text-2xl font-bold text-gray-700">Cambridge</div>
           </div>
@@ -318,7 +328,7 @@ export default function HomePage() {
             Create Free Account
           </Link>
           <p className="mt-8 text-sm text-primary-300">
-            Used by students at MIT, Stanford, Harvard, and more
+            Used by students at MIT, Stanford, Harvard, Southville, and more
           </p>
         </div>
       </section>
@@ -329,9 +339,12 @@ export default function HomePage() {
           <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
             <div className="flex items-center gap-2">
               <BookOpen className="h-6 w-6 text-primary-600" />
-              <span className="text-lg font-bold text-gray-900">FlashCard</span>
+              <div className="flex flex-col">
+                <span className="text-lg font-bold text-gray-900">StudySpark</span>
+                <span className="text-xs font-medium italic text-gray-600">by Vaughn</span>
+              </div>
             </div>
-            <p className="text-gray-600">&copy; 2026 FlashCard. All rights reserved.</p>
+            <p className="text-gray-600">&copy; 2026 StudySpark. All rights reserved.</p>
           </div>
         </div>
       </footer>

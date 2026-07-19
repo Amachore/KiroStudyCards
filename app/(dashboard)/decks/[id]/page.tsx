@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Edit, Play, Share2 } from 'lucide-react';
+import { ArrowLeft, Edit, Play, Share2, LogIn } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
 export default async function DeckViewPage({ params }: { params: { id: string } }) {
@@ -10,21 +10,28 @@ export default async function DeckViewPage({ params }: { params: { id: string } 
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) {
-    redirect('/login');
-  }
-
-  const { data: deck } = await supabase
+  // Allow viewing public/unlisted decks without authentication
+  const { data: deckData } = await supabase
     .from('decks')
     .select('*, cards(*)')
     .eq('id', params.id)
     .single();
 
-  if (!deck) {
-    redirect('/decks');
+  if (!deckData) {
+    redirect('/');
   }
 
-  const isOwner = deck.user_id === user.id;
+  const deck = deckData as any;
+  
+  // Check if user can view this deck
+  const isOwner = user && deck.user_id === user.id;
+  const isPublic = deck.privacy === 'public' || deck.privacy === 'unlisted';
+  
+  // Only redirect if deck is private and user is not the owner
+  if (deck.privacy === 'private' && !isOwner) {
+    redirect('/login?redirect=/decks/' + params.id);
+  }
+
   const sortedCards = (deck.cards || []).sort(
     (a: any, b: any) => a.order_index - b.order_index
   );
@@ -32,7 +39,7 @@ export default async function DeckViewPage({ params }: { params: { id: string } 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
       <div className="flex items-center gap-4">
-        <Link href="/decks" className="text-gray-600 hover:text-gray-900">
+        <Link href="/" className="text-gray-600 hover:text-gray-900">
           <ArrowLeft className="h-6 w-6" />
         </Link>
         <div className="flex-1">
@@ -40,6 +47,29 @@ export default async function DeckViewPage({ params }: { params: { id: string } 
           {deck.description && <p className="mt-1 text-gray-600">{deck.description}</p>}
         </div>
       </div>
+
+      {/* Guest Banner - Show if not logged in */}
+      {!user && (
+        <div className="rounded-xl border-2 border-primary-200 bg-primary-50 p-6">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h3 className="mb-2 text-lg font-semibold text-primary-900">
+                👋 You're browsing as a guest
+              </h3>
+              <p className="text-sm text-primary-700">
+                Sign in to create your own decks, track progress, and save your study sessions!
+              </p>
+            </div>
+            <Link
+              href={`/register?redirect=/decks/${params.id}`}
+              className="btn-primary flex items-center gap-2 whitespace-nowrap"
+            >
+              <LogIn className="h-4 w-4" />
+              Sign Up Free
+            </Link>
+          </div>
+        </div>
+      )}
 
       {/* Deck Info Card */}
       <div className="card">
@@ -96,7 +126,7 @@ export default async function DeckViewPage({ params }: { params: { id: string } 
 
       {/* Cards Preview */}
       <div className="card">
-        <h2 className="mb-4 text-xl font-semibold text-gray-900">Cards</h2>
+        <h2 className="mb-4 text-xl font-semibold text-gray-900">Cards Preview</h2>
         {sortedCards.length === 0 ? (
           <div className="py-8 text-center text-gray-500">
             <p>No cards yet</p>
@@ -108,7 +138,7 @@ export default async function DeckViewPage({ params }: { params: { id: string } 
           </div>
         ) : (
           <div className="space-y-3">
-            {sortedCards.map((card: any, index: number) => (
+            {sortedCards.slice(0, user ? sortedCards.length : 3).map((card: any, index: number) => (
               <div key={card.id} className="rounded-lg border border-gray-200 p-4">
                 <div className="mb-2 flex items-center justify-between">
                   <span className="text-sm font-medium text-gray-600">Card {index + 1}</span>
@@ -129,6 +159,21 @@ export default async function DeckViewPage({ params }: { params: { id: string } 
                 <p className="text-gray-900">{card.front}</p>
               </div>
             ))}
+            
+            {/* Show preview limit message for guests */}
+            {!user && sortedCards.length > 3 && (
+              <div className="rounded-lg border-2 border-dashed border-primary-300 bg-primary-50/50 p-6 text-center">
+                <p className="mb-3 text-sm font-medium text-primary-900">
+                  🔒 {sortedCards.length - 3} more cards available
+                </p>
+                <Link
+                  href={`/register?redirect=/decks/${params.id}`}
+                  className="btn-primary inline-flex"
+                >
+                  Sign Up to View All Cards
+                </Link>
+              </div>
+            )}
           </div>
         )}
       </div>
