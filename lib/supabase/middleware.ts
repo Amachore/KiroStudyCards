@@ -5,6 +5,16 @@ import { Database } from '@/types/database';
 
 export async function middleware(req: NextRequest) {
   const res = NextResponse.next();
+  
+  // Validate environment variables
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    console.error('Missing Supabase environment variables in middleware');
+    return NextResponse.redirect(new URL('/error?message=configuration', req.url));
+  }
+
   const supabase = createMiddlewareClient<Database>({ req, res });
 
   const {
